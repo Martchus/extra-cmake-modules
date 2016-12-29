@@ -143,11 +143,11 @@ function(ecm_process_po_files_as_qm lang)
     # Find lrelease and lconvert
     find_package(Qt5LinguistTools CONFIG REQUIRED)
 
+    get_target_property(lrelease_location Qt5::lrelease LOCATION)
     if(TARGET Qt5::lconvert)
-        set(lconvert_executable Qt5::lconvert)
+        get_target_property(lconvert_executable Qt5::lconvert IMPORTED_LOCATION)
     else()
         # Qt < 5.3.1 does not define Qt5::lconvert
-        get_target_property(lrelease_location Qt5::lrelease LOCATION)
         get_filename_component(lrelease_path ${lrelease_location} PATH)
         find_program(lconvert_executable
             NAMES lconvert-qt5 lconvert
@@ -174,7 +174,7 @@ function(ecm_process_po_files_as_qm lang)
         add_custom_command(OUTPUT ${qm_file}
             COMMAND ${lconvert_executable}
                 ARGS -i ${po_file} -o ${ts_file} -target-language ${lang}
-            COMMAND Qt5::lrelease
+            COMMAND ${lrelease_location}
                 ARGS -removeidentical -nounfinished -silent ${ts_file} -qm ${qm_file}
             DEPENDS ${po_file}
             )

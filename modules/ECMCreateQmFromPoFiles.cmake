@@ -122,12 +122,12 @@ function(_ECM_QM_EXTRACT_LANGUAGE out_language po_file)
 endfunction()
 
 function(_ECM_QM_CREATE_TARGET install_destination catalog_name)
+    get_target_property(lrelease_location Qt5::lrelease LOCATION)
     # Find lconvert
     if(TARGET Qt5::lconvert)
-        set(lconvert_executable Qt5::lconvert)
+        get_target_property(lconvert_executable Qt5::lconvert IMPORTED_LOCATION)
     else()
         # Qt < 5.3.1 does not define Qt5::lconvert
-        get_target_property(lrelease_location Qt5::lrelease LOCATION)
         get_filename_component(lrelease_path ${lrelease_location} PATH)
         find_program(lconvert_executable
             NAMES lconvert-qt5 lconvert
@@ -157,7 +157,7 @@ function(_ECM_QM_CREATE_TARGET install_destination catalog_name)
         add_custom_command(OUTPUT ${qmfile}
             COMMAND ${lconvert_executable}
                 ARGS -i ${it} -o ${tsfile} -target-language ${language}
-            COMMAND Qt5::lrelease
+            COMMAND ${lrelease_location}
                 ARGS -removeidentical -silent ${tsfile} -qm ${qmfile}
             DEPENDS ${it}
             )
